@@ -50,10 +50,13 @@ bool linear::LinearRegression::predict(_Tp **_x, int n_rows, const char *path) c
     std::ofstream file(path, std::ios::out);
     if(file.is_open()){
         _Tp *yhat = predict(_x, n_rows);
-        file << n_rows << '\n' << 1 << '\n';
+        file << n_rows << '\n' << n+1 << '\n';
 
-        for( int i = 0; i < n_rows; ++i )
+        for( int i = 0; i < n_rows; ++i ){
+            for( int j = 0; j < n; ++j )
+                file << _x[i][j] << '\t';
             file << yhat[i] << '\n';
+        }
 
         file.close();
         delete []yhat;
@@ -69,9 +72,9 @@ linear::_Tp linear::LinearRegression::predict(_Tp *_x) const
 }
 
 
-linear::_Tp linear::LinearRegression::score( _Tp **_x, _Tp *_y, function _func = MSE ) const 
+linear::_Tp linear::LinearRegression::score( _Tp **_x, _Tp *_y, int _n, function _func = MSE ) const 
 {
-    linear::_Tp *yhat = this->predict(_x, m);
+    linear::_Tp *yhat = this->predict(_x, _n);
     ObjectFunction *Jw;
     switch (_func)
     {
@@ -90,7 +93,7 @@ linear::_Tp linear::LinearRegression::score( _Tp **_x, _Tp *_y, function _func =
             exit(EXIT_FAILURE);
             break;
     }
-    _Tp score = Jw->compute(_y, yhat, m);
+    _Tp score = Jw->compute(_y, yhat, _n);
     delete Jw;
     return score;
 }
@@ -177,10 +180,10 @@ void linear::LinearRegression::optimize( _Tp **_x, _Tp *_y, _Tp *_yhat, int n_co
 
 void linear::LinearRegression::learn( _Tp **_x, _Tp *_y, int n_cols, int _t)
 {
-    float *yhat = new float[m];
+    _Tp *yhat = new _Tp[m];
     forward(_x, m, n, yhat);
     
-    _Tp *errors = new float[m];
+    _Tp *errors = new _Tp[_t];
     
     ObjectFunction *Jw = new mse();
     errors[0] = Jw->compute(_y, yhat, m);
@@ -192,7 +195,13 @@ void linear::LinearRegression::learn( _Tp **_x, _Tp *_y, int n_cols, int _t)
         forward( _x, m, n_cols, yhat ); 
         errors[t] = Jw->compute( _y, yhat, m );
 
-    }while( errors[t-1]-errors[t] > eps && t < _t );
+        if(t % 100 == 0){
+            printf("%.5f\n", errors[t]);
+        }
+
+    }while( ((errors[t-1] - errors[t]) > eps) && (t < _t) );
+
+    // printf("tmax: %d\n", t);
 
     delete []yhat;
     delete []errors;

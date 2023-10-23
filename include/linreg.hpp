@@ -44,7 +44,7 @@ namespace linear
              * @brief to get predictions
              * 
              * @param _x the feature matrix.
-             * @param n_rows the number of sampels.
+             * @param n_rows the number of samples.
              * 
              * @return float*  
              */
@@ -54,7 +54,7 @@ namespace linear
              * @brief to write predictions in a new .siam file
              *        
              * @param _x the feature matrix.
-             * @param n_rows the number of sampels.
+             * @param n_rows the number of samples.
              * @param path path to the .siam file.
              * 
              * @return true if the predictions wrote correctely.
@@ -75,10 +75,11 @@ namespace linear
              * 
              * @param _x testset features.
              * @param _y testset output expected.
+             * @param _n number of samples
              * @param error_function the object function to use. eg.linear::MSE, MAE, RMSE.
              * @return _Tp 
              */
-            _Tp score( _Tp **_x, _Tp *_y, function error_function ) const ;
+            _Tp score( _Tp **_x, _Tp *_y, int _n, function error_function ) const ;
 
             /**
              * @brief to write the model parametres to a new .siam file. 
@@ -120,7 +121,7 @@ namespace linear
 
             for( int i = 1; i < _n; ++i ){
                 linear::_Tp d = (_y[0]-_yhat[0]);
-                error += d * d;
+                error += (d * d);
             }
 
             return error/(_Tp)_n;
