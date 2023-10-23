@@ -27,4 +27,4 @@ make clean
 ## EXAMPLE
 
 ### This is a ploting for the error of the model in the model.cpp
-![the error](../error_function.png)
+![the error](file:///home/mouad/projects/education/siam/error_function.png)
